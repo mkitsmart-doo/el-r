@@ -149,11 +149,42 @@ h2{font-size:clamp(1.7rem,4.4vw,2.6rem);text-transform:uppercase}
 }
 .hscroll-pin:not(.is-pinned) .scroller{pointer-events:auto;scroll-snap-type:x mandatory}
 .hscroll-pin .scroller::-webkit-scrollbar{display:none}
-#usluge .card{flex:0 0 clamp(280px,78vw,400px)}
+#usluge .scroller{
+  margin:0;
+  padding:6px 10px 22px 2px;
+  scroll-padding-left:0;
+}
+#usluge:not(.is-pinned) .scroller{overflow:visible}
+#usluge .card{
+  flex:1 0 0;
+  min-width:min(100%,300px);
+}
 #faq .faq-card{
   flex:0 0 clamp(280px,80vw,400px);
   min-height:340px;
 }
+.scroller-shell{position:relative;display:flex;flex-direction:column;align-items:stretch}
+.scroll-hint{
+  display:none;
+  align-items:center;
+  justify-content:center;
+  align-self:center;
+  gap:10px;
+  width:fit-content;
+  margin-bottom:10px;
+  padding:4px 12px;
+  border-radius:999px;
+  border:2px solid var(--black);
+  background:rgba(255,255,255,.55);
+  color:var(--black);
+  font-size:.95rem;
+  font-weight:700;
+  letter-spacing:.08em;
+  line-height:1;
+  pointer-events:none;
+  user-select:none;
+}
+.scroller-shell.has-scroll .scroll-hint{display:flex}
 .scroller{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:6px var(--gutter) 26px;margin:0 calc(var(--gutter) * -1);scroll-padding-left:var(--gutter);scrollbar-width:thin;scrollbar-color:var(--black) rgba(0,0,0,.12)}
 .scroller::-webkit-scrollbar{height:8px}
 .scroller::-webkit-scrollbar-track{background:rgba(0,0,0,.08);border-radius:8px}
