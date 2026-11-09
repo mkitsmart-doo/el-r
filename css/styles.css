@@ -98,24 +98,27 @@ h2{font-size:clamp(1.7rem,4.4vw,2.6rem);text-transform:uppercase}
   background:var(--black);
   border-radius:4px;
 }
-.hero-kicker{
-  width:fit-content;
-  max-width:100%;
-  margin:clamp(16px,2.4vw,26px) 0 0;
-}
-.hero .bar{width:100%;height:5px;background:var(--black);border-radius:8px;margin:0 0 12px}
-.hero .sub{font-size:clamp(.82rem,1.6vw,1.05rem);font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.hero .sub{margin-top:clamp(28px,4vw,48px);font-size:clamp(.82rem,1.6vw,1.05rem);font-weight:800;letter-spacing:.06em;text-transform:uppercase}
 .hero .lead{font-size:clamp(.95rem,1.5vw,1.12rem);max-width:30em;color:#1a1a1a;margin-top:clamp(14px,2vw,22px)}
-.hero-call{margin-top:22px;font-weight:800;font-size:clamp(1.15rem,2.4vw,1.5rem)}
-.hero-call + .hero-call{margin-top:10px}
-.hero-call a{
-  display:inline-block;
+.hero-contacts{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-top:22px;
+  font-weight:800;
+  font-size:clamp(1.05rem,2.2vw,1.4rem);
+}
+.hero-contacts a{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
   text-decoration:none;
   border:3px solid var(--yellow);
   border-radius:999px;
   padding:8px 18px;
+  white-space:nowrap;
 }
-.hero-call a:hover{background:var(--yellow)}
+.hero-contacts a:hover{background:var(--yellow)}
 .hero-visual{
   align-self:end;
   display:flex;align-items:flex-end;justify-content:center;
@@ -222,6 +225,17 @@ footer{background:#000;color:var(--white);padding:clamp(36px,6vw,64px) 0 28px;ma
   .reasons,.contact-grid,.foot{grid-template-columns:1fr}
 }
 @media (max-width:720px){
+  .hero-contacts{
+    gap:8px;
+    font-size:clamp(.78rem,3.4vw,.95rem);
+  }
+  .hero-contacts a{
+    flex:1 1 auto;
+    min-width:0;
+    padding:8px 12px;
+    border-width:2px;
+    text-align:center;
+  }
   .topbar .wrap{
     grid-template-columns:1fr auto;
     grid-template-areas:
@@ -245,5 +259,7 @@ footer{background:#000;color:var(--white);padding:clamp(36px,6vw,64px) 0 28px;ma
   .stat{padding:16px}
   .brand img{width:124px}
   .call{padding:10px 12px;font-size:.82rem}
+  .hero-contacts{gap:6px;font-size:.72rem}
+  .hero-contacts a{padding:7px 8px}
 }
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
