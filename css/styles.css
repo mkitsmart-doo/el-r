@@ -148,7 +148,8 @@ h2{font-size:clamp(1.7rem,4.4vw,2.6rem);text-transform:uppercase}
   pointer-events:auto;
   -webkit-overflow-scrolling:touch;
 }
-.hscroll-pin.is-pinned .scroller{overflow:hidden}
+.hscroll-pin.is-pinned .scroller{overflow:hidden;touch-action:pan-y}
+.hscroll-pin.is-pinned .scroller.is-dragging{user-select:none}
 .hscroll-pin:not(.is-pinned) .scroller{scroll-snap-type:x mandatory}
 .hscroll-pin .scroller::-webkit-scrollbar{display:none}
 .scroller-track{

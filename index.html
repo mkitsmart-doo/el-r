@@ -357,16 +357,22 @@
 
   let topbarH = 0;
   let rafId = 0;
+  let activeDrag = null;
 
   const ease = () => (reduce.matches ? 1 : coarse.matches ? 0.2 : 0.28);
+  const clampX = (item, x) => Math.min(item.maxX, Math.max(0, x));
 
   const applyX = (item, x) => {
     item.currentX = x;
     item.track.style.transform = `translate3d(${-x}px,0,0)`;
   };
 
-  const setTarget = (item, x) => {
-    item.targetX = Math.min(item.maxX, Math.max(0, x));
+  const setTarget = (item, x, immediate = false) => {
+    item.targetX = clampX(item, x);
+    if (immediate) {
+      applyX(item, item.targetX);
+      return;
+    }
     if (!rafId) rafId = requestAnimationFrame(tick);
   };
 
@@ -377,6 +383,7 @@
 
     sections.forEach((item) => {
       if (!item.section.classList.contains('is-pinned')) return;
+      if (activeDrag?.item === item) return;
       const delta = item.targetX - item.currentX;
       if (Math.abs(delta) < 0.35) {
         if (delta !== 0) applyX(item, item.targetX);
@@ -404,7 +411,14 @@
     };
   };
 
+  const scrollToProgress = (item, x) => {
+    const {driveStart, range} = driveRange(item);
+    const progress = item.maxX > 0 ? clampX(item, x) / item.maxX : 0;
+    window.scrollTo({top: driveStart + progress * range});
+  };
+
   const syncOne = (item) => {
+    if (activeDrag?.item === item) return;
     if (reduce.matches || item.maxX < 8 || !item.section.classList.contains('is-pinned')) return;
     const {driveStart, range} = driveRange(item);
     const progress = Math.min(1, Math.max(0, (window.scrollY - driveStart) / range));
@@ -474,8 +488,73 @@
     window.scrollTo({top: Math.min(driveEnd, Math.max(driveStart, y + dx))});
   };
 
+  const onPointerMove = (e) => {
+    if (!activeDrag || activeDrag.pointerId !== e.pointerId) return;
+
+    const totalDx = e.clientX - activeDrag.startX;
+    const totalDy = e.clientY - activeDrag.startY;
+
+    if (!activeDrag.axis) {
+      if (Math.abs(totalDx) < 8 && Math.abs(totalDy) < 8) return;
+      activeDrag.axis = Math.abs(totalDx) > Math.abs(totalDy) ? 'x' : 'y';
+      if (activeDrag.axis === 'y') {
+        // Let the browser keep native vertical scrolling.
+        teardownDrag(false);
+        return;
+      }
+      activeDrag.item.scroller.classList.add('is-dragging');
+      activeDrag.item.scroller.setPointerCapture?.(e.pointerId);
+    }
+
+    if (activeDrag.axis !== 'x') return;
+    e.preventDefault();
+    // Finger left advances cards (same direction as native horizontal scroll).
+    setTarget(activeDrag.item, activeDrag.originX - totalDx, true);
+  };
+
+  const teardownDrag = (commit) => {
+    if (!activeDrag) return;
+    const {item, pointerId, axis} = activeDrag;
+    item.scroller.classList.remove('is-dragging');
+    try { item.scroller.releasePointerCapture?.(pointerId); } catch (_) {}
+    window.removeEventListener('pointermove', onPointerMove);
+    window.removeEventListener('pointerup', onPointerUp);
+    window.removeEventListener('pointercancel', onPointerUp);
+    if (commit && axis === 'x') scrollToProgress(item, item.targetX);
+    activeDrag = null;
+  };
+
+  const onPointerUp = (e) => {
+    if (!activeDrag || activeDrag.pointerId !== e.pointerId) return;
+    teardownDrag(true);
+  };
+
+  const onPointerDown = (item, e) => {
+    // Touch/pen only — desktop keeps wheel horizontal scroll, not click-drag.
+    if (e.pointerType === 'mouse') return;
+    if (reduce.matches || item.maxX < 8 || !item.section.classList.contains('is-pinned')) return;
+
+    const {stickStart, stickEnd} = driveRange(item);
+    const y = window.scrollY;
+    if (y < stickStart - 1 || y > stickEnd + 1) return;
+
+    teardownDrag(false);
+    activeDrag = {
+      item,
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      originX: item.currentX,
+      axis: null
+    };
+    window.addEventListener('pointermove', onPointerMove, {passive: false});
+    window.addEventListener('pointerup', onPointerUp);
+    window.addEventListener('pointercancel', onPointerUp);
+  };
+
   sections.forEach((item) => {
     item.sticky.addEventListener('wheel', (e) => onWheel(item, e), {passive: false});
+    item.scroller.addEventListener('pointerdown', (e) => onPointerDown(item, e));
   });
 
   measure();
