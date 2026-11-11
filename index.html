@@ -349,7 +349,7 @@
     return {
       section, sticky, scroller, track, shell,
       maxX: 0, stickyH: 0, startHold: 0, endHold: 0, drag: 1,
-      targetX: 0, currentX: 0
+      snaps: [0], targetX: 0, currentX: 0
     };
   }).filter(Boolean);
 
@@ -359,7 +359,7 @@
   let rafId = 0;
   let activeDrag = null;
 
-  const ease = () => (reduce.matches ? 1 : coarse.matches ? 0.2 : 0.28);
+  const ease = () => (reduce.matches ? 1 : coarse.matches ? 0.28 : 0.34);
   const clampX = (item, x) => Math.min(item.maxX, Math.max(0, x));
 
   const applyX = (item, x) => {
@@ -411,9 +411,47 @@
     };
   };
 
+  const buildSnaps = (item) => {
+    const points = [...item.track.children].map((card) =>
+      Math.min(Math.max(0, card.offsetLeft), item.maxX)
+    );
+    points.push(item.maxX);
+    item.snaps = [...new Set(points.map((x) => Math.round(x)))].sort((a, b) => a - b);
+    if (!item.snaps.length) item.snaps = [0];
+  };
+
+  const nearestSnap = (item, x) => {
+    const snaps = item.snaps;
+    let best = snaps[0];
+    let bestDist = Math.abs(x - best);
+    for (let i = 1; i < snaps.length; i++) {
+      const d = Math.abs(x - snaps[i]);
+      if (d < bestDist) {
+        best = snaps[i];
+        bestDist = d;
+      }
+    }
+    return best;
+  };
+
+  const snapFromProgress = (item, progress) => {
+    const snaps = item.snaps;
+    if (snaps.length < 2) return progress * item.maxX;
+    const t = progress * (snaps.length - 1);
+    return snaps[Math.min(snaps.length - 1, Math.max(0, Math.round(t)))];
+  };
+
   const scrollToProgress = (item, x) => {
     const {driveStart, range} = driveRange(item);
-    const progress = item.maxX > 0 ? clampX(item, x) / item.maxX : 0;
+    const snaps = item.snaps;
+    let progress = 0;
+    if (item.maxX > 0 && snaps.length > 1) {
+      const snapped = nearestSnap(item, x);
+      const idx = Math.max(0, snaps.indexOf(snapped));
+      progress = idx / (snaps.length - 1);
+    } else if (item.maxX > 0) {
+      progress = clampX(item, x) / item.maxX;
+    }
     window.scrollTo({top: driveStart + progress * range});
   };
 
@@ -422,7 +460,7 @@
     if (reduce.matches || item.maxX < 8 || !item.section.classList.contains('is-pinned')) return;
     const {driveStart, range} = driveRange(item);
     const progress = Math.min(1, Math.max(0, (window.scrollY - driveStart) / range));
-    setTarget(item, progress * item.maxX);
+    setTarget(item, snapFromProgress(item, progress));
   };
 
   const sync = () => sections.forEach(syncOne);
@@ -440,7 +478,8 @@
     topbarH = document.querySelector('.topbar')?.offsetHeight || 0;
     const startHold = Math.round(Math.min(160, Math.max(96, window.innerHeight * 0.14)));
     const endHold = Math.round(Math.min(56, Math.max(28, window.innerHeight * 0.045)));
-    const drag = coarse.matches ? 1.25 : 1.12;
+    // Extra travel so each snap step gets enough scroll distance
+    const drag = coarse.matches ? 1.45 : 1.28;
 
     sections.forEach((item) => {
       item.sticky.style.top = `${topbarH}px`;
@@ -448,6 +487,7 @@
       item.scroller.scrollLeft = 0;
       item.stickyH = item.sticky.offsetHeight;
       item.maxX = measureMaxX(item);
+      buildSnaps(item);
       item.startHold = startHold;
       item.endHold = endHold;
       item.drag = drag;
@@ -520,7 +560,11 @@
     window.removeEventListener('pointermove', onPointerMove);
     window.removeEventListener('pointerup', onPointerUp);
     window.removeEventListener('pointercancel', onPointerUp);
-    if (commit && axis === 'x') scrollToProgress(item, item.targetX);
+    if (commit && axis === 'x') {
+      const snapped = nearestSnap(item, item.targetX);
+      setTarget(item, snapped);
+      scrollToProgress(item, snapped);
+    }
     activeDrag = null;
   };
 
