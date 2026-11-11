@@ -145,10 +145,21 @@ h2{font-size:clamp(1.7rem,4.4vw,2.6rem);text-transform:uppercase}
   scrollbar-width:none;
   overscroll-behavior-x:contain;
   scroll-snap-type:none;
-  pointer-events:none;
+  pointer-events:auto;
+  -webkit-overflow-scrolling:touch;
 }
-.hscroll-pin:not(.is-pinned) .scroller{pointer-events:auto;scroll-snap-type:x mandatory}
+.hscroll-pin.is-pinned .scroller{overflow:hidden}
+.hscroll-pin:not(.is-pinned) .scroller{scroll-snap-type:x mandatory}
 .hscroll-pin .scroller::-webkit-scrollbar{display:none}
+.scroller-track{
+  display:flex;
+  gap:18px;
+  width:max-content;
+  padding-right:8px;
+  will-change:transform;
+  transform:translate3d(0,0,0);
+  backface-visibility:hidden;
+}
 #usluge .scroller{
   margin:0;
   padding:6px 10px 22px 2px;
@@ -156,12 +167,18 @@ h2{font-size:clamp(1.7rem,4.4vw,2.6rem);text-transform:uppercase}
 }
 #usluge:not(.is-pinned) .scroller{overflow:visible}
 #usluge .card{
-  flex:1 0 0;
-  min-width:min(100%,300px);
+  flex:0 0 clamp(260px,78vw,340px);
+  min-width:0;
+  max-width:340px;
 }
+#usluge .card h3{
+  overflow-wrap:anywhere;
+}
+#faq .scroller-track{align-items:stretch}
 #faq .faq-card{
   flex:0 0 clamp(280px,80vw,400px);
-  min-height:340px;
+  min-height:0;
+  height:auto;
 }
 .scroller-shell{position:relative;display:flex;flex-direction:column;align-items:stretch}
 .scroll-hint{
@@ -185,12 +202,13 @@ h2{font-size:clamp(1.7rem,4.4vw,2.6rem);text-transform:uppercase}
   user-select:none;
 }
 .scroller-shell.has-scroll .scroll-hint{display:flex}
-.scroller{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:6px var(--gutter) 26px;margin:0 calc(var(--gutter) * -1);scroll-padding-left:var(--gutter);scrollbar-width:thin;scrollbar-color:var(--black) rgba(0,0,0,.12)}
+.scroller{overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:6px var(--gutter) 26px;margin:0 calc(var(--gutter) * -1);scroll-padding-left:var(--gutter);scrollbar-width:thin;scrollbar-color:var(--black) rgba(0,0,0,.12)}
 .scroller::-webkit-scrollbar{height:8px}
 .scroller::-webkit-scrollbar-track{background:rgba(0,0,0,.08);border-radius:8px}
 .scroller::-webkit-scrollbar-thumb{background:var(--black);border-radius:8px}
 .card,.faq-card{flex:0 0 clamp(260px,78vw,340px);scroll-snap-align:start;background:var(--white);border:3px solid var(--black);border-radius:var(--radius);padding:26px;display:flex;flex-direction:column;gap:14px;box-shadow:6px 6px 0 var(--black)}
 .faq-card{flex-basis:clamp(270px,80vw,380px)}
+.hscroll-pin:not(.is-pinned) .scroller-track > *{scroll-snap-align:start}
 .card .ico{width:60px;height:60px;border-radius:16px;background:var(--yellow);border:3px solid var(--black);display:grid;place-items:center}
 .card .ico svg{width:34px;height:34px;stroke:var(--black);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .card h3{font-size:1.2rem;text-transform:uppercase}
@@ -207,8 +225,8 @@ h2{font-size:clamp(1.7rem,4.4vw,2.6rem);text-transform:uppercase}
   align-self:center;
   flex:0 0 auto;
 }
-.faq-card h3{font-size:1.08rem}
-.faq-card p{margin-top:auto}
+.faq-card h3{font-size:1.08rem;text-align:center}
+.faq-card p{margin-top:0;text-align:left}
 
 .why{background:var(--black);color:var(--white);border-radius:clamp(26px,5vw,56px);margin:0 clamp(8px,2vw,24px)}
 .why .section-head p{color:#d9d9d9}
@@ -222,18 +240,17 @@ h2{font-size:clamp(1.7rem,4.4vw,2.6rem);text-transform:uppercase}
 .reason h3{font-size:1.05rem;text-transform:uppercase;margin-bottom:10px}
 .reason p{font-size:.93rem;color:#d4d4d4}
 
-.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.contact-card{max-width:640px;margin-inline:auto;text-align:left}
 .info{background:var(--white);border:3px solid var(--black);border-radius:var(--radius);padding:clamp(22px,3vw,34px)}
-.info h3{font-size:1.1rem;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.info h3{font-size:1.1rem;font-weight:800;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px}
 .info h3::before{content:"";width:14px;height:14px;border-radius:50%;background:var(--yellow);border:3px solid var(--black);flex:0 0 auto}
 .info h3.spaced{margin-top:22px}
 .info address{font-style:normal}
-.info p,.info address{font-size:1.02rem;margin-bottom:6px}
-.info .big{font-size:clamp(1.2rem,2.6vw,1.6rem);font-weight:800}
+.info p,.info address,.info dd{font-size:1.02rem;margin-bottom:6px}
 .info a{text-decoration:none;font-weight:700}
 .info a:hover{text-decoration:underline}
 .info dl{display:grid;grid-template-columns:auto 1fr;gap:6px 18px}
-.info dt{font-weight:700}
+.info dt{font-size:1.02rem;font-weight:700}
 .area{margin-top:18px;font-size:.95rem;color:#2d2d2d}
 
 footer{background:#000;color:var(--white);padding:clamp(36px,6vw,64px) 0 28px;margin-top:clamp(24px,5vw,56px)}
@@ -253,7 +270,7 @@ footer{background:#000;color:var(--white);padding:clamp(36px,6vw,64px) 0 28px;ma
   .hero-visual{min-height:0}
   .hero-visual img{max-height:420px;margin:0 auto}
   .stats{grid-template-columns:1fr 1fr}
-  .reasons,.contact-grid,.foot{grid-template-columns:1fr}
+  .reasons,.foot{grid-template-columns:1fr}
 }
 @media (max-width:720px){
   .hero-contacts{
