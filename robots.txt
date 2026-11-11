@@ -2,6 +2,5 @@ User-agent: *
 Allow: /
 
 Disallow: /404.html
-Disallow: /SEO-AEO.md
 
 Sitemap: https://www.el-r.hr/sitemap.xml
