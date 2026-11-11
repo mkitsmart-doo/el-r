@@ -144,12 +144,10 @@ h2{font-size:clamp(1.7rem,4.4vw,2.6rem);text-transform:uppercase}
   overflow-x:auto;
   scrollbar-width:none;
   overscroll-behavior-x:contain;
-  scroll-snap-type:none;
   pointer-events:auto;
   -webkit-overflow-scrolling:touch;
 }
 .hscroll-pin.is-pinned .scroller{overflow:hidden}
-.hscroll-pin:not(.is-pinned) .scroller{scroll-snap-type:x mandatory}
 .hscroll-pin .scroller::-webkit-scrollbar{display:none}
 .scroller-track{
   display:flex;
@@ -173,6 +171,32 @@ h2{font-size:clamp(1.7rem,4.4vw,2.6rem);text-transform:uppercase}
 }
 #usluge .card h3{
   overflow-wrap:anywhere;
+}
+@media (min-width:861px){
+  #usluge.hscroll-pin{padding:clamp(48px,8vw,96px) 0}
+  #usluge .hscroll-sticky{position:static;padding:0}
+  #usluge .scroller{
+    overflow:visible;
+    margin:0;
+    padding:4px 6px 10px 2px;
+  }
+  #usluge .scroller-track{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+    width:100%;
+    padding-right:0;
+    transform:none !important;
+    will-change:auto;
+  }
+  #usluge .card{
+    flex:none;
+    width:auto;
+    max-width:none;
+    min-width:0;
+    height:100%;
+  }
+  #usluge .scroll-hint{display:none !important}
 }
 #faq .scroller-track{align-items:stretch}
 #faq .faq-card{
@@ -202,13 +226,12 @@ h2{font-size:clamp(1.7rem,4.4vw,2.6rem);text-transform:uppercase}
   user-select:none;
 }
 .scroller-shell.has-scroll .scroll-hint{display:flex}
-.scroller{overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:6px var(--gutter) 26px;margin:0 calc(var(--gutter) * -1);scroll-padding-left:var(--gutter);scrollbar-width:thin;scrollbar-color:var(--black) rgba(0,0,0,.12)}
+.scroller{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:6px var(--gutter) 26px;margin:0 calc(var(--gutter) * -1);scrollbar-width:thin;scrollbar-color:var(--black) rgba(0,0,0,.12)}
 .scroller::-webkit-scrollbar{height:8px}
 .scroller::-webkit-scrollbar-track{background:rgba(0,0,0,.08);border-radius:8px}
 .scroller::-webkit-scrollbar-thumb{background:var(--black);border-radius:8px}
-.card,.faq-card{flex:0 0 clamp(260px,78vw,340px);scroll-snap-align:start;background:var(--white);border:3px solid var(--black);border-radius:var(--radius);padding:26px;display:flex;flex-direction:column;gap:14px;box-shadow:6px 6px 0 var(--black)}
+.card,.faq-card{flex:0 0 clamp(260px,78vw,340px);background:var(--white);border:3px solid var(--black);border-radius:var(--radius);padding:26px;display:flex;flex-direction:column;gap:14px;box-shadow:6px 6px 0 var(--black)}
 .faq-card{flex-basis:clamp(270px,80vw,380px)}
-.hscroll-pin:not(.is-pinned) .scroller-track > *{scroll-snap-align:start}
 .card .ico{width:60px;height:60px;border-radius:16px;background:var(--yellow);border:3px solid var(--black);display:grid;place-items:center}
 .card .ico svg{width:34px;height:34px;stroke:var(--black);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .card h3{font-size:1.2rem;text-transform:uppercase}
@@ -310,4 +333,44 @@ footer{background:#000;color:var(--white);padding:clamp(36px,6vw,64px) 0 28px;ma
   .hero-contacts{gap:6px;font-size:.72rem}
   .hero-contacts a{padding:7px 8px}
 }
+.page-404{min-height:100vh;display:flex;flex-direction:column}
+.error-page{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:clamp(48px,10vw,96px) 0;
+}
+.error-page .wrap{max-width:560px}
+.error-code{
+  font-size:clamp(4.5rem,16vw,8rem);
+  font-weight:900;
+  line-height:1;
+  letter-spacing:-.04em;
+  color:var(--black);
+}
+.error-page h1{
+  margin-top:8px;
+  font-size:clamp(1.5rem,4vw,2.2rem);
+  text-transform:uppercase;
+}
+.error-lead{
+  margin-top:14px;
+  font-size:1.05rem;
+  color:#2a2a2a;
+}
+.home-btn{
+  display:inline-block;
+  margin-top:28px;
+  background:var(--black);
+  color:var(--yellow);
+  text-decoration:none;
+  font-weight:800;
+  padding:14px 28px;
+  border-radius:999px;
+  border:3px solid var(--black);
+}
+.home-btn:hover{background:var(--yellow);color:var(--black)}
+
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}

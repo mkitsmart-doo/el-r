@@ -332,6 +332,7 @@
 (() => {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
   const coarse = window.matchMedia('(pointer: coarse)');
+  const uslugeGrid = window.matchMedia('(min-width: 861px)');
   const sections = [...document.querySelectorAll('.hscroll-pin')].map((section) => {
     const sticky = section.querySelector('.hscroll-sticky');
     const scroller = section.querySelector('[data-scroll-drive]');
@@ -348,7 +349,8 @@
 
     return {
       section, sticky, scroller, track, shell,
-      maxX: 0, stickyH: 0, startHold: 0, endHold: 0, drag: 1,
+      maxX: 0, stickyH: 0, sectionY: 0, sectionH: 0,
+      startHold: 0, endHold: 0, drag: 1,
       targetX: 0, currentX: 0
     };
   }).filter(Boolean);
@@ -356,50 +358,22 @@
   if (!sections.length) return;
 
   let topbarH = 0;
-  let rafId = 0;
   let activeDrag = null;
 
-  const ease = () => (reduce.matches ? 1 : coarse.matches ? 0.2 : 0.28);
   const clampX = (item, x) => Math.min(item.maxX, Math.max(0, x));
 
   const applyX = (item, x) => {
     item.currentX = x;
+    item.targetX = x;
     item.track.style.transform = `translate3d(${-x}px,0,0)`;
   };
 
-  const setTarget = (item, x, immediate = false) => {
-    item.targetX = clampX(item, x);
-    if (immediate) {
-      applyX(item, item.targetX);
-      return;
-    }
-    if (!rafId) rafId = requestAnimationFrame(tick);
-  };
-
-  const tick = () => {
-    rafId = 0;
-    const k = ease();
-    let again = false;
-
-    sections.forEach((item) => {
-      if (!item.section.classList.contains('is-pinned')) return;
-      if (activeDrag?.item === item) return;
-      const delta = item.targetX - item.currentX;
-      if (Math.abs(delta) < 0.35) {
-        if (delta !== 0) applyX(item, item.targetX);
-        return;
-      }
-      applyX(item, item.currentX + delta * k);
-      again = true;
-    });
-
-    if (again) rafId = requestAnimationFrame(tick);
-  };
-
   const driveRange = (item) => {
-    const sectionTop = item.section.getBoundingClientRect().top + window.scrollY;
+    // Use cached document Y from measure — live getBoundingClientRect jitter
+    // on mobile (URL bar show/hide) was causing direction-change resets.
+    const sectionTop = item.sectionY;
     const stickStart = sectionTop - topbarH;
-    const stickEnd = sectionTop + item.section.offsetHeight - item.stickyH - topbarH;
+    const stickEnd = sectionTop + item.sectionH - item.stickyH - topbarH;
     const driveStart = stickStart + item.startHold;
     const driveEnd = stickEnd - item.endHold;
     return {
@@ -414,7 +388,8 @@
   const scrollToProgress = (item, x) => {
     const {driveStart, range} = driveRange(item);
     const progress = item.maxX > 0 ? clampX(item, x) / item.maxX : 0;
-    window.scrollTo({top: driveStart + progress * range});
+    // Instant — html { scroll-behavior:smooth } would animate and feel like snapping.
+    window.scrollTo({top: driveStart + progress * range, behavior: 'auto'});
   };
 
   const syncOne = (item) => {
@@ -422,7 +397,8 @@
     if (reduce.matches || item.maxX < 8 || !item.section.classList.contains('is-pinned')) return;
     const {driveStart, range} = driveRange(item);
     const progress = Math.min(1, Math.max(0, (window.scrollY - driveStart) / range));
-    setTarget(item, progress * item.maxX);
+    // 1:1 with scroll — no lerp. Laggy easing overshot and "reset" on reverse.
+    applyX(item, progress * item.maxX);
   };
 
   const sync = () => sections.forEach(syncOne);
@@ -454,10 +430,13 @@
       item.targetX = 0;
       item.currentX = 0;
 
-      if (reduce.matches || item.maxX < 8) {
+      const gridMode = item.section.id === 'usluge' && uslugeGrid.matches;
+      if (reduce.matches || item.maxX < 8 || gridMode) {
         item.section.style.height = '';
         item.section.classList.remove('is-pinned');
         item.shell?.classList.remove('has-scroll');
+        item.sectionY = item.section.getBoundingClientRect().top + window.scrollY;
+        item.sectionH = item.section.offsetHeight;
         applyX(item, 0);
         return;
       }
@@ -465,6 +444,8 @@
       item.section.style.height = `${item.stickyH + item.startHold + item.maxX * item.drag + item.endHold}px`;
       item.section.classList.add('is-pinned');
       item.shell?.classList.add('has-scroll');
+      item.sectionY = item.section.getBoundingClientRect().top + window.scrollY;
+      item.sectionH = item.section.offsetHeight;
     });
 
     sync();
@@ -485,7 +466,10 @@
     if (y < stickStart - 1 || y > stickEnd + 1) return;
 
     e.preventDefault();
-    window.scrollTo({top: Math.min(driveEnd, Math.max(driveStart, y + dx))});
+    window.scrollTo({
+      top: Math.min(driveEnd, Math.max(driveStart, y + dx)),
+      behavior: 'auto'
+    });
   };
 
   const onPointerMove = (e) => {
@@ -509,7 +493,7 @@
     if (activeDrag.axis !== 'x') return;
     e.preventDefault();
     // Finger left advances cards (same direction as native horizontal scroll).
-    setTarget(activeDrag.item, activeDrag.originX - totalDx, true);
+    applyX(activeDrag.item, clampX(activeDrag.item, activeDrag.originX - totalDx));
   };
 
   const teardownDrag = (commit) => {
@@ -562,6 +546,7 @@
   window.addEventListener('resize', measure);
   coarse.addEventListener?.('change', measure);
   reduce.addEventListener?.('change', measure);
+  uslugeGrid.addEventListener?.('change', measure);
   if (document.fonts?.ready) document.fonts.ready.then(measure);
 })();
 </script>

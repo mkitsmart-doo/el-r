@@ -1,0 +1,16 @@
+Options -Indexes
+
+ErrorDocument 404 /404.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Prefer HTTPS
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # Apex → www
+  RewriteCond %{HTTP_HOST} ^el-r\.hr$ [NC]
+  RewriteRule ^ https://www.el-r.hr%{REQUEST_URI} [L,R=301]
+</IfModule>
