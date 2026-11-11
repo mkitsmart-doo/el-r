@@ -1,0 +1,15 @@
+# El-R d.o.o.
+
+> Certificirani električari iz Preloga. Kućne i industrijske elektroinstalacije, inspekcija i servis u Međimurskoj županiji i cijeloj sjeverozapadnoj Hrvatskoj (Međimurje, Varaždin, Zagreb). Slogan: Spojeno — Provjereno — Pouzdano.
+
+El-R d.o.o. izvodi elektroinstalacijske radove od obiteljske kuće do proizvodne hale. Radovi se izvode čisto, sigurno i prema propisima, uz dokumentaciju, ateste i jamstvo. Kontakt: +385 98 960 3524, info@el-r.hr. Adresa: Ul. Kalmana Mesarića 45, 40323 Prelog, Hrvatska. Radno vrijeme: pon–pet 07:00–16:00, subotom po dogovoru.
+
+## Stranice
+
+- [Početna](https://www.el-r.hr/): Glavna web stranica s uslugama, prednostima, kontaktom i FAQ
+- [Sitemap](https://www.el-r.hr/sitemap.xml): Popis URL-ova za indekse
+
+## Optional
+
+- [Kontakt sekcija](https://www.el-r.hr/#kontakt): Telefon, e-mail, adresa i radno vrijeme
+- [Česta pitanja](https://www.el-r.hr/#faq): Odgovori o području rada, dokumentaciji, ponudi i jamstvu

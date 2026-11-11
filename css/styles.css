@@ -309,21 +309,10 @@ footer{background:#000;color:var(--white);padding:clamp(36px,6vw,64px) 0 28px;ma
   }
   .topbar .wrap{
     grid-template-columns:1fr auto;
-    grid-template-areas:
-      "brand call"
-      "nav nav";
     padding-top:12px;padding-bottom:12px;
   }
-  .brand{grid-area:brand}
-  .nav{
-    grid-area:nav;
-    width:100%;
-    justify-content:center;
-    overflow-x:auto;
-    padding-bottom:2px;
-  }
-  .call{grid-area:call}
-  .nav a{white-space:nowrap}
+  .nav{display:none}
+  .call{justify-self:end}
 }
 @media (max-width:420px){
   .stats{gap:10px}
